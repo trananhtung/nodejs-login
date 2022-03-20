@@ -4,6 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "nodemon index.ts",
+    "build": "tsc",
+    "start": "tsc && node dist/index.js",
     "test": "jest"
   },
   "repository": {
@@ -22,6 +25,7 @@
     "@typescript-eslint/parser": "^5.15.0",
     "eslint": "^8.11.0",
     "jest": "^27.5.1",
+    "nodemon": "^2.0.15",
     "ts-node": "^10.7.0",
     "typescript": "^4.6.2"
   }
