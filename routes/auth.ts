@@ -1,9 +1,8 @@
 import express = require('express');
 import passport = require('passport');
-import crypto = require('crypto');
 import { Strategy as LocalStrategy } from 'passport-local';
 import db from '../helper/database';
-
+import { hashPassword, comparePassword } from '../helper/hash';
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
@@ -23,30 +22,19 @@ passport.use(
         if (err) {
           return cb(err);
         }
+
         if (!row) {
           return cb(null, false, {
             message: 'Incorrect username or password.',
           });
         }
 
-        crypto.pbkdf2(
-          password,
-          row.salt,
-          310000,
-          32,
-          'sha256',
-          function (err, hashedPassword) {
-            if (err) {
-              return cb(err);
-            }
-            if (!crypto.timingSafeEqual(row.hashed_password, hashedPassword)) {
-              return cb(null, false, {
-                message: 'Incorrect username or password.',
-              });
-            }
-            return cb(null, row);
-          },
-        );
+        if (!comparePassword(password, row.hashed_password)) {
+          return cb(null, false, {
+            message: 'Incorrect username or password.',
+          });
+        }
+        return cb(null, row);
       },
     );
   }),
@@ -89,36 +77,24 @@ authRouter.get('/signup', function (req, res) {
 });
 
 authRouter.post('/signup', function (req, res, next) {
-  const salt = crypto.randomBytes(16);
-  crypto.pbkdf2(
-    req.body.password,
-    salt,
-    310000,
-    32,
-    'sha256',
-    function (err, hashedPassword) {
+  const hashedPassword = hashPassword(req.body.password);
+  db.run(
+    'INSERT INTO users (username, hashed_password) VALUES (?, ?)',
+    [req.body.username, hashedPassword],
+    function (err) {
       if (err) {
         return next(err);
       }
-      db.run(
-        'INSERT INTO users (username, hashed_password, salt) VALUES (?, ?, ?)',
-        [req.body.username, hashedPassword, salt],
-        function (err) {
-          if (err) {
-            return next(err);
-          }
-          const user = {
-            id: this.lastID,
-            username: req.body.username,
-          };
-          req.login(user, function (err) {
-            if (err) {
-              return next(err);
-            }
-            res.redirect('/');
-          });
-        },
-      );
+      const user = {
+        id: this.lastID,
+        username: req.body.username,
+      };
+      req.login(user, function (err) {
+        if (err) {
+          return next(err);
+        }
+        res.redirect('/');
+      });
     },
   );
 });

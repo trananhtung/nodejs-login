@@ -1,6 +1,7 @@
 import sqlite3 = require('sqlite3');
-import crypto = require('crypto');
 import path from 'path';
+
+import { hashPassword } from './hash';
 
 const db = new sqlite3.Database(
   path.join(process.cwd(), 'database', 'user.db'),
@@ -8,11 +9,7 @@ const db = new sqlite3.Database(
 
 db.serialize(function () {
   db.run(
-    'CREATE TABLE IF NOT EXISTS users ( \
-    username TEXT UNIQUE, \
-    hashed_password BLOB, \
-    salt BLOB \
-  )',
+    'CREATE TABLE IF NOT EXISTS users ( username TEXT UNIQUE, hashed_password BLOB)',
   );
 
   db.run(
@@ -23,11 +20,9 @@ db.serialize(function () {
   )',
   );
 
-  // create an initial user (username: alice, password: letmein)
-  const salt = crypto.randomBytes(16);
   db.run(
-    'INSERT OR IGNORE INTO users (username, hashed_password, salt) VALUES (?, ?, ?)',
-    ['alice', crypto.pbkdf2Sync('letmein', salt, 310000, 32, 'sha256'), salt],
+    'INSERT OR IGNORE INTO users (username, hashed_password) VALUES (?, ?)',
+    ['admin', hashPassword('123456789')],
   );
 });
 
