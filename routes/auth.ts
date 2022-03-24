@@ -1,8 +1,9 @@
 import express = require('express');
 import passport = require('passport');
 import { Strategy as LocalStrategy } from 'passport-local';
-import db from '../helper/database';
+
 import { hashPassword, comparePassword } from '../helper/hash';
+import db from '../helper/database';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace

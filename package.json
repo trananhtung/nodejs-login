@@ -1,8 +1,8 @@
 {
-  "name": "todos-express-password",
-  "version": "0.0.0",
+  "name": "todo-list-app",
+  "version": "1.0.0",
   "private": true,
-  "description": "Todo app using Express, Passport, and SQLite for sign in with username and password.",
+  "description": "Todo list app using Express, Passport.",
   "keywords": [
     "example",
     "express",
@@ -10,28 +10,13 @@
     "sqlite"
   ],
   "author": {
-    "name": "Jared Hanson",
-    "email": "jaredhanson@gmail.com",
-    "url": "https://www.jaredhanson.me/"
-  },
-  "homepage": "https://github.com/passport/todos-express-password",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/passport/todos-express-password.git"
-  },
-  "bugs": {
-    "url": "https://github.com/passport/todos-express-password/issues"
-  },
-  "funding": {
-    "type": "github",
-    "url": "https://github.com/sponsors/jaredhanson"
+    "name": "tung tran"
   },
   "license": "Unlicense",
   "scripts": {
     "dev": "nodemon index.ts"
   },
   "dependencies": {
-    "@types/bcryptjs": "^2.4.2",
     "bcryptjs": "^2.4.3",
     "connect-ensure-login": "^0.1.1",
     "connect-sqlite3": "^0.9.13",
@@ -48,11 +33,12 @@
     "passport": "^0.5.2",
     "passport-local": "^1.0.0",
     "pluralize": "^8.0.0",
-    "sqlite3": "^5.0.2",
-    "ts-node": "^10.7.0",
-    "typescript": "^4.6.2"
+    "sqlite3": "^5.0.2"
   },
   "devDependencies": {
+    "ts-node": "^10.7.0",
+    "typescript": "^4.6.2",
+    "@types/bcryptjs": "^2.4.2",
     "@types/connect-ensure-login": "^0.1.7",
     "@types/connect-sqlite3": "^0.9.1",
     "@types/cookie-parser": "~1.4.2",

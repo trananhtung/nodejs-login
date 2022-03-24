@@ -1,5 +1,4 @@
 import express = require('express');
-import { ErrorRequestHandler } from 'express';
 import path = require('path');
 import cookieParser = require('cookie-parser');
 import session = require('express-session');
@@ -7,7 +6,9 @@ import csrf = require('csurf');
 import passport = require('passport');
 import logger = require('morgan');
 import SQLiteStore = require('connect-sqlite3');
-import createError = require('http-errors');
+
+import { ErrorRequestHandler } from 'express';
+import createError from 'http-errors';
 
 import indexRouter from './routes/index';
 import authRouter from './routes/auth';

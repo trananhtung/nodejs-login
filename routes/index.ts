@@ -1,8 +1,7 @@
 import express = require('express');
 import connectEnsureLogin = require('connect-ensure-login');
-import db from '../helper/database';
 
-const ensureLoggedIn = connectEnsureLogin.ensureLoggedIn();
+import db from '../helper/database';
 
 interface Todo {
   id: string;
@@ -11,7 +10,9 @@ interface Todo {
   url: string;
 }
 
-const fetchTodos: express.RequestHandler = (req, res, next) => {
+const ensureLoggedIn = connectEnsureLogin.ensureLoggedIn();
+
+const loadTodoList: express.RequestHandler = (req, res, next) => {
   db.all(
     'SELECT rowid AS id, * FROM todos WHERE owner_id = ?',
     [req.user?.id],
@@ -49,14 +50,14 @@ indexRouter.get(
     }
     next();
   },
-  fetchTodos,
+  loadTodoList,
   function (req, res) {
     res.locals.filter = null;
     res.render('index', { user: req.user });
   },
 );
 
-indexRouter.get('/active', ensureLoggedIn, fetchTodos, function (req, res) {
+indexRouter.get('/active', ensureLoggedIn, loadTodoList, function (req, res) {
   res.locals.todos = res.locals.todos.filter(function (todo: Todo) {
     return !todo.completed;
   });
@@ -64,13 +65,18 @@ indexRouter.get('/active', ensureLoggedIn, fetchTodos, function (req, res) {
   res.render('index', { user: req.user });
 });
 
-indexRouter.get('/completed', ensureLoggedIn, fetchTodos, function (req, res) {
-  res.locals.todos = res.locals.todos.filter(function (todo: Todo) {
-    return todo.completed;
-  });
-  res.locals.filter = 'completed';
-  res.render('index', { user: req.user });
-});
+indexRouter.get(
+  '/completed',
+  ensureLoggedIn,
+  loadTodoList,
+  function (req, res) {
+    res.locals.todos = res.locals.todos.filter(function (todo: Todo) {
+      return todo.completed;
+    });
+    res.locals.filter = 'completed';
+    res.render('index', { user: req.user });
+  },
+);
 
 indexRouter.post(
   '/',
