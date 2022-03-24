@@ -1,24 +1,82 @@
-import http = require('http');
-import fs = require('fs');
+import express = require('express');
+import { ErrorRequestHandler } from 'express';
 import path = require('path');
+import cookieParser = require('cookie-parser');
+import session = require('express-session');
+import csrf = require('csurf');
+import passport = require('passport');
+import logger = require('morgan');
+import SQLiteStore = require('connect-sqlite3');
+import createError = require('http-errors');
 
-const server = http.createServer((req, res) => {
-  switch (req.url) {
-    case '/':
-      res.writeHead(200, { 'Content-Type': 'text/html' });
-      fs.createReadStream(path.join(__dirname, 'view', 'index.html')).pipe(res);
-      break;
-    case '/login':
-      res.writeHead(200, { 'Content-Type': 'text/html' });
-      fs.createReadStream(path.join(__dirname, 'view', 'login.html')).pipe(res);
-      break;
-    default:
-      res.writeHead(404, { 'Content-Type': 'text/html' });
-      fs.createReadStream(path.join(__dirname, 'view', 'error.html')).pipe(res);
+import indexRouter from './routes/index';
+import authRouter from './routes/auth';
+
+declare module 'express-session' {
+  interface SessionData {
+    messages?: string[];
   }
-})
+}
 
-// Start server
-server.listen(3000, () => {
-  console.log("Server started");
-})
+const app = express();
+const SQLiteStoreWithSession = SQLiteStore(session);
+
+// view engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
+
+app.locals.pluralize = require('pluralize');
+
+app.use(
+  session({
+    secret: 'keyboard cat',
+    resave: false,
+    saveUninitialized: false,
+    store: new SQLiteStoreWithSession({
+      db: 'sessions.db',
+      dir: 'database',
+    }),
+  }),
+);
+
+app.use(logger('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(csrf({ cookie: true }));
+app.use(passport.authenticate('session'));
+
+app.use(function (req, res, next) {
+  const msgs = req.session.messages || [];
+  res.locals.messages = msgs;
+  res.locals.hasMessages = !!msgs.length;
+  req.session.messages = [];
+  next();
+});
+
+app.use(function (req, res, next) {
+  res.locals.csrfToken = req.csrfToken();
+  next();
+});
+
+app.use('/', indexRouter);
+app.use('/', authRouter);
+
+app.use(function (req, res, next) {
+  next(createError(404));
+});
+
+// error handler
+const errorHandler: ErrorRequestHandler = (err, req, res) => {
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
+  res.status(err.status || 500);
+  res.render('error');
+};
+app.use(errorHandler);
+
+app.listen(3000, () => {
+  console.log('listening on port 3000');
+});
