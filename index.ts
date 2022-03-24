@@ -12,12 +12,6 @@ import createError = require('http-errors');
 import indexRouter from './routes/index';
 import authRouter from './routes/auth';
 
-declare module 'express-session' {
-  interface SessionData {
-    messages?: string[];
-  }
-}
-
 const app = express();
 const SQLiteStoreWithSession = SQLiteStore(session);
 
@@ -47,14 +41,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(csrf({ cookie: true }));
 app.use(passport.authenticate('session'));
-
-app.use(function (req, res, next) {
-  const msgs = req.session.messages || [];
-  res.locals.messages = msgs;
-  res.locals.hasMessages = !!msgs.length;
-  req.session.messages = [];
-  next();
-});
 
 app.use(function (req, res, next) {
   res.locals.csrfToken = req.csrfToken();

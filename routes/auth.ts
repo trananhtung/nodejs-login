@@ -3,6 +3,7 @@ import passport = require('passport');
 import { Strategy as LocalStrategy } from 'passport-local';
 import db from '../helper/database';
 import { hashPassword, comparePassword } from '../helper/hash';
+
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
@@ -10,6 +11,12 @@ declare global {
       id: number;
       username: string;
     }
+  }
+}
+
+declare module 'express-session' {
+  interface SessionData {
+    messages?: string[];
   }
 }
 
@@ -55,6 +62,10 @@ passport.deserializeUser(function (user: Express.User, cb) {
 const authRouter = express.Router();
 
 authRouter.get('/login', function (req, res) {
+  const msgs = req.session.messages || [];
+  res.locals.messages = msgs;
+  res.locals.hasMessages = msgs.length > 0;
+  req.session.messages = [];
   res.render('login');
 });
 
@@ -73,10 +84,22 @@ authRouter.post('/logout', function (req, res) {
 });
 
 authRouter.get('/signup', function (req, res) {
+  res.locals.signUpFailed = false;
   res.render('signup');
 });
 
 authRouter.post('/signup', function (req, res, next) {
+  db.get(
+    'SELECT rowid AS id, * FROM users WHERE username = ?',
+    [req.body.username],
+    function (err, row) {
+      if (row) {
+        res.locals.signUpFailed = true;
+        res.locals.signUpMessages = 'Username already taken.';
+        res.render('signup');
+      }
+    },
+  );
   const hashedPassword = hashPassword(req.body.password);
   db.run(
     'INSERT INTO users (username, hashed_password) VALUES (?, ?)',
