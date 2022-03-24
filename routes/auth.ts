@@ -22,7 +22,7 @@ declare module 'express-session' {
 }
 
 passport.use(
-  new LocalStrategy(function verify(username, password, cb) {
+  new LocalStrategy((username, password, cb) => {
     db.get(
       'SELECT rowid AS id, * FROM users WHERE username = ?',
       [username],
@@ -48,21 +48,21 @@ passport.use(
   }),
 );
 
-passport.serializeUser(function (user: Express.User, cb) {
-  process.nextTick(function () {
+passport.serializeUser((user: Express.User, cb) => {
+  process.nextTick(() => {
     cb(null, { id: user.id, username: user.username });
   });
 });
 
-passport.deserializeUser(function (user: Express.User, cb) {
-  process.nextTick(function () {
+passport.deserializeUser((user: Express.User, cb) => {
+  process.nextTick(() => {
     return cb(null, user);
   });
 });
 
 const authRouter = express.Router();
 
-authRouter.get('/login', function (req, res) {
+authRouter.get('/login', (req, res) => {
   const msgs = req.session.messages || [];
   res.locals.messages = msgs;
   res.locals.hasMessages = msgs.length > 0;
@@ -79,21 +79,21 @@ authRouter.post(
   }),
 );
 
-authRouter.post('/logout', function (req, res) {
+authRouter.post('/logout', (req, res) => {
   req.logout();
   res.redirect('/');
 });
 
-authRouter.get('/signup', function (req, res) {
+authRouter.get('/signup', (req, res) => {
   res.locals.signUpFailed = false;
   res.render('signup');
 });
 
-authRouter.post('/signup', function (req, res, next) {
+authRouter.post('/signup', (req, res, next) => {
   db.get(
     'SELECT rowid AS id, * FROM users WHERE username = ?',
     [req.body.username],
-    function (err, row) {
+    (err, row) => {
       if (row) {
         res.locals.signUpFailed = true;
         res.locals.signUpMessages = 'Username already taken.';
@@ -113,7 +113,7 @@ authRouter.post('/signup', function (req, res, next) {
         id: this.lastID,
         username: req.body.username,
       };
-      req.login(user, function (err) {
+      req.login(user, (err) => {
         if (err) {
           return next(err);
         }
