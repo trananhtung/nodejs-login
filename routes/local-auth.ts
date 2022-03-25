@@ -8,15 +8,15 @@ import db from '../helper/database';
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
-    interface User {
-      id: number;
+    export interface User {
+      id: string;
       username: string;
     }
   }
 }
 
 declare module 'express-session' {
-  interface SessionData {
+  export interface SessionData {
     messages?: string[];
   }
 }
@@ -110,7 +110,7 @@ authRouter.post('/signup', (req, res, next) => {
         return next(err);
       }
       const user = {
-        id: this.lastID,
+        id: this.lastID.toString(),
         username: req.body.username,
       };
       req.login(user, (err) => {
