@@ -61,16 +61,16 @@ passport.deserializeUser((user: Express.User, cb) => {
   });
 });
 
-const authRouter = express.Router();
+const localRouter = express.Router();
 
-authRouter.get('/*', (req, res, next) => {
+localRouter.get('/*', (req, res, next) => {
   if (req.user) {
     res.redirect('/');
   }
   next();
 });
 
-authRouter.get('/login', (req, res) => {
+localRouter.get('/login', (req, res) => {
   const msgs = req.session.messages || [];
   res.locals.messages = msgs;
   res.locals.hasMessages = msgs.length > 0;
@@ -78,7 +78,7 @@ authRouter.get('/login', (req, res) => {
   res.render('login');
 });
 
-authRouter.post(
+localRouter.post(
   '/login/password',
   passport.authenticate('local', {
     successReturnToOrRedirect: '/',
@@ -87,12 +87,12 @@ authRouter.post(
   }),
 );
 
-authRouter.get('/signup', (req, res) => {
+localRouter.get('/signup', (req, res) => {
   res.locals.signUpFailed = false;
   res.render('signup');
 });
 
-authRouter.post('/signup', (req, res, next) => {
+localRouter.post('/signup', (req, res, next) => {
   db.get(
     'SELECT id, * FROM users WHERE username = ?',
     [req.body.username],
@@ -127,4 +127,4 @@ authRouter.post('/signup', (req, res, next) => {
   );
 });
 
-export default authRouter;
+export default localRouter;

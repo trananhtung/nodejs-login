@@ -11,8 +11,9 @@ import { ErrorRequestHandler } from 'express';
 import createError from 'http-errors';
 
 import indexRouter from './routes/index';
-import authRouter from './routes/local-auth';
+import localRouter from './routes/local-auth';
 import googleRouter from './routes/google-auth';
+import facebookRouter from './routes/facebook-auth';
 
 const app = express();
 const SQLiteStoreWithSession = SQLiteStore(session);
@@ -50,8 +51,9 @@ app.use(function (req, res, next) {
 });
 
 app.use('/', indexRouter);
-app.use('/', authRouter);
+app.use('/', localRouter);
 app.use('/google', googleRouter);
+app.use('/facebook', facebookRouter);
 
 app.use(function (req, res, next) {
   next(createError(404));
