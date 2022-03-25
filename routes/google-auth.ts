@@ -2,6 +2,7 @@ import express = require('express');
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import dotenv = require('dotenv');
+import { v4 as uuid } from 'uuid';
 
 dotenv.config();
 passport.use(
@@ -14,7 +15,11 @@ passport.use(
     (accessToken, refreshToken, profile, done) => {
       console.log('GoogleStrategy callback');
       console.log(profile);
-      done(null, { username: profile.displayName, id: profile.id });
+      done(null, {
+        id: profile.id,
+        name: profile.displayName,
+        username: uuid(),
+      });
     },
   ),
 );
