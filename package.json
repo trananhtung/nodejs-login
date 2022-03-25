@@ -2,11 +2,12 @@
   "name": "todo-list-app",
   "version": "1.0.0",
   "private": true,
-  "description": "Todo list app using Express, Passport.",
+  "description": "Todo list app using Express, Passportjs",
   "keywords": [
     "example",
     "express",
     "passport",
+    "passportjs",
     "sqlite"
   ],
   "author": {
