@@ -1,6 +1,7 @@
 import express = require('express');
 import passport = require('passport');
 import { Strategy as LocalStrategy } from 'passport-local';
+import { v4 as uuid } from 'uuid';
 
 import { hashPassword, comparePassword } from '../helper/hash';
 import db from '../helper/database';
@@ -8,15 +9,15 @@ import db from '../helper/database';
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
-    interface User {
-      id: number;
-      username: string;
+    export interface User {
+      id: string;
+      name: string;
     }
   }
 }
 
 declare module 'express-session' {
-  interface SessionData {
+  export interface SessionData {
     messages?: string[];
   }
 }
@@ -24,7 +25,7 @@ declare module 'express-session' {
 passport.use(
   new LocalStrategy((username, password, cb) => {
     db.get(
-      'SELECT rowid AS id, * FROM users WHERE username = ?',
+      'SELECT id, * FROM users WHERE username = ?',
       [username],
       function (err, row) {
         if (err) {
@@ -50,7 +51,7 @@ passport.use(
 
 passport.serializeUser((user: Express.User, cb) => {
   process.nextTick(() => {
-    cb(null, { id: user.id, username: user.username });
+    cb(null, { id: user.id, name: user.name });
   });
 });
 
@@ -61,6 +62,13 @@ passport.deserializeUser((user: Express.User, cb) => {
 });
 
 const authRouter = express.Router();
+
+authRouter.get('/*', (req, res, next) => {
+  if (req.user) {
+    res.redirect('/');
+  }
+  next();
+});
 
 authRouter.get('/login', (req, res) => {
   const msgs = req.session.messages || [];
@@ -79,11 +87,6 @@ authRouter.post(
   }),
 );
 
-authRouter.post('/logout', (req, res) => {
-  req.logout();
-  res.redirect('/');
-});
-
 authRouter.get('/signup', (req, res) => {
   res.locals.signUpFailed = false;
   res.render('signup');
@@ -91,7 +94,7 @@ authRouter.get('/signup', (req, res) => {
 
 authRouter.post('/signup', (req, res, next) => {
   db.get(
-    'SELECT rowid AS id, * FROM users WHERE username = ?',
+    'SELECT id, * FROM users WHERE username = ?',
     [req.body.username],
     (err, row) => {
       if (row) {
@@ -103,16 +106,17 @@ authRouter.post('/signup', (req, res, next) => {
   );
   const hashedPassword = hashPassword(req.body.password);
   db.run(
-    'INSERT INTO users (username, hashed_password) VALUES (?, ?)',
-    [req.body.username, hashedPassword],
+    'INSERT INTO users (id, name, username, hashed_password) VALUES (?, ?, ?, ?)',
+    [uuid(), req.body.name, req.body.username, hashedPassword],
     function (err) {
       if (err) {
         return next(err);
       }
       const user = {
-        id: this.lastID,
-        username: req.body.username,
+        id: req.user?.id ?? '',
+        name: req.user?.name ?? '',
       };
+
       req.login(user, (err) => {
         if (err) {
           return next(err);

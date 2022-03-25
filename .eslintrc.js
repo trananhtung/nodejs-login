@@ -21,5 +21,6 @@ module.exports = {
     semi: ['error', 'always'],
     'block-spacing': ['error', 'always'],
     'prettier/prettier': 'error',
+    '@typescript-eslint/no-non-null-assertion': 'off',
   },
 };

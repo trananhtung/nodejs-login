@@ -1,5 +1,6 @@
 import sqlite3 = require('sqlite3');
 import path from 'path';
+import { v4 as uuid } from 'uuid';
 
 import { hashPassword } from './hash';
 
@@ -9,7 +10,7 @@ const db = new sqlite3.Database(
 
 db.serialize(function () {
   db.run(
-    'CREATE TABLE IF NOT EXISTS users ( username TEXT UNIQUE, hashed_password BLOB)',
+    'CREATE TABLE IF NOT EXISTS users ( id TEXT UNIQUE, name TEXT, username TEXT UNIQUE, hashed_password BLOB)',
   );
 
   db.run(
@@ -21,8 +22,8 @@ db.serialize(function () {
   );
 
   db.run(
-    'INSERT OR IGNORE INTO users (username, hashed_password) VALUES (?, ?)',
-    ['admin', hashPassword('123456789')],
+    'INSERT OR IGNORE INTO users (id, name, username, hashed_password) VALUES (?, ?, ?, ?)',
+    [uuid(), 'Admin đẹp trai', 'admin', hashPassword('123456789')],
   );
 });
 

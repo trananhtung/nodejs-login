@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Express • TodoMVC</title>
+  <title>Todo App</title>
   <link rel="stylesheet" href="/css/base.css">
   <link rel="stylesheet" href="/css/index.css">
   <link rel="stylesheet" href="/css/app.css">
@@ -15,7 +15,7 @@
     <nav class="nav">
       <ul>
         <li class="user">
-          <%= user.username %>
+          <%= user.name %>
         </li>
         <li>
           <form action="/logout" method="post">
@@ -26,7 +26,7 @@
       </ul>
     </nav>
     <header class="header">
-      <h1>todos</h1>
+      <h1>Tasks</h1>
       <form action="/" method="post">
         <input class="new-todo" name="title" placeholder="What needs to be done?" autofocus>
         <% if (filter) { %>
