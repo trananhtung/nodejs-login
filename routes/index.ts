@@ -185,4 +185,9 @@ indexRouter.post('/clear-completed', ensureLoggedIn, (req, res, next) => {
   );
 });
 
+indexRouter.post('/logout', (req, res) => {
+  req.logout();
+  res.redirect('/');
+});
+
 export default indexRouter;

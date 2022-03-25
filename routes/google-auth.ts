@@ -4,6 +4,8 @@ import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import dotenv = require('dotenv');
 import { v4 as uuid } from 'uuid';
 
+import db from '../helper/database';
+
 dotenv.config();
 passport.use(
   new GoogleStrategy(
@@ -13,18 +15,38 @@ passport.use(
       clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
     },
     (accessToken, refreshToken, profile, done) => {
-      console.log('GoogleStrategy callback');
-      console.log(profile);
+      db.run(
+        'INSERT OR IGNORE INTO users (id, name, username) VALUES (?, ?, ?)',
+        [profile.id, 'profile.displayName', uuid()],
+      );
       done(null, {
         id: profile.id,
         name: profile.displayName,
-        username: uuid(),
       });
     },
   ),
 );
 
+passport.serializeUser(function (user, done) {
+  process.nextTick(function () {
+    done(null, { id: user.id, name: user.name });
+  });
+});
+
+passport.deserializeUser(function (user: Express.User, done) {
+  process.nextTick(function () {
+    return done(null, user);
+  });
+});
+
 const googleRouter = express.Router();
+
+googleRouter.get('/*', (req, res, next) => {
+  if (req.user) {
+    res.redirect('/');
+  }
+  next();
+});
 
 googleRouter.get(
   '/auth',
@@ -33,9 +55,19 @@ googleRouter.get(
 
 googleRouter.get(
   '/auth/redirect',
-  passport.authenticate('google'),
-  (req, res) => {
-    res.send(req.query);
+  passport.authenticate('google', { failureRedirect: '/login' }),
+  (req, res, next) => {
+    console.log(req);
+    const user = {
+      id: req.user?.id ?? '',
+      name: req.user?.name ?? '',
+    };
+    req.login(user, (err) => {
+      if (err) {
+        return next(err);
+      }
+      res.redirect('/');
+    });
   },
 );
 

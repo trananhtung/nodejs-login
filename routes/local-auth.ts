@@ -11,7 +11,6 @@ declare global {
   namespace Express {
     export interface User {
       id: string;
-      username: string;
       name: string;
     }
   }
@@ -64,6 +63,13 @@ passport.deserializeUser((user: Express.User, cb) => {
 
 const authRouter = express.Router();
 
+authRouter.get('/*', (req, res, next) => {
+  if (req.user) {
+    res.redirect('/');
+  }
+  next();
+});
+
 authRouter.get('/login', (req, res) => {
   const msgs = req.session.messages || [];
   res.locals.messages = msgs;
@@ -80,11 +86,6 @@ authRouter.post(
     failureMessage: true,
   }),
 );
-
-authRouter.post('/logout', (req, res) => {
-  req.logout();
-  res.redirect('/');
-});
 
 authRouter.get('/signup', (req, res) => {
   res.locals.signUpFailed = false;
@@ -112,10 +113,10 @@ authRouter.post('/signup', (req, res, next) => {
         return next(err);
       }
       const user = {
-        id: this.lastID.toString(),
-        username: req.body.username,
-        name: req.body.name,
+        id: req.user?.id ?? '',
+        name: req.user?.name ?? '',
       };
+
       req.login(user, (err) => {
         if (err) {
           return next(err);
