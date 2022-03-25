@@ -104,17 +104,18 @@ localRouter.post('/signup', (req, res, next) => {
       }
     },
   );
+  const id = uuid();
   const hashedPassword = hashPassword(req.body.password);
   db.run(
     'INSERT INTO users (id, name, username, hashed_password) VALUES (?, ?, ?, ?)',
-    [uuid(), req.body.name, req.body.username, hashedPassword],
+    [id, req.body.name, req.body.username, hashedPassword],
     function (err) {
       if (err) {
         return next(err);
       }
       const user = {
-        id: req.user?.id ?? '',
-        name: req.user?.name ?? '',
+        id,
+        name: req.body.name,
       };
 
       req.login(user, (err) => {
