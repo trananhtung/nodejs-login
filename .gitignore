@@ -10,3 +10,6 @@ dist
 
 # Mac OS X
 .DS_Store
+
+#database
+database

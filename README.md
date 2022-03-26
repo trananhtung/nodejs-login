@@ -1,5 +1,6 @@
 # Todo List App
 This practice is inspired from https://github.com/passport/todos-express-password.git
+
 Addition feature:
 - Typescript
 - Login 3 strategies in one app: Local, Facebook, Google
@@ -9,7 +10,7 @@ Addition feature:
 To run this app, clone the repository and install dependencies:
 
 ```bash
-$ git clone https://github.com/passport/todos-express-password.git
+$ git clone https://github.com/tunganhtran/nodejs-login.git
 $ cd nodejs-login
 $ npm install
 ```
@@ -30,3 +31,5 @@ $ npm run dev
 ```
 
 Navigate to [`http://localhost:8080`](http://localhost:8080).
+
+![Alt Text](https://media.giphy.com/media/NORSs81VelUoicaakd/giphy.gif)
