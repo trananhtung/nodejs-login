@@ -1,9 +1,10 @@
 import sqlite3 = require('sqlite3');
 import path from 'path';
 import { v4 as uuid } from 'uuid';
-
+import mkdirp = require('mkdirp');
 import { hashPassword } from './hash';
 
+mkdirp.sync(path.join(process.cwd(), 'database'));
 const db = new sqlite3.Database(
   path.join(process.cwd(), 'database', 'user.db'),
 );
@@ -23,7 +24,7 @@ db.serialize(function () {
 
   db.run(
     'INSERT OR IGNORE INTO users (id, name, username, hashed_password) VALUES (?, ?, ?, ?)',
-    [uuid(), 'Admin đẹp trai', 'admin', hashPassword('123456789')],
+    [uuid(), 'Admin good boy', 'admin', hashPassword('123456789')],
   );
 });
 
