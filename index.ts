@@ -15,6 +15,34 @@ import localRouter from './routes/local-auth';
 import googleRouter from './routes/google-auth';
 import facebookRouter from './routes/facebook-auth';
 
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace Express {
+    export interface User {
+      id: string;
+      name: string;
+    }
+  }
+}
+
+declare module 'express-session' {
+  export interface SessionData {
+    messages?: string[];
+  }
+}
+
+passport.serializeUser(function (user, done) {
+  process.nextTick(function () {
+    done(null, user);
+  });
+});
+
+passport.deserializeUser(function (user: Express.User, done) {
+  process.nextTick(function () {
+    return done(null, user);
+  });
+});
+
 const app = express();
 const SQLiteStoreWithSession = SQLiteStore(session);
 
@@ -66,6 +94,7 @@ const errorHandler: ErrorRequestHandler = (err, req, res) => {
   res.status(err.status || 500);
   res.render('error');
 };
+
 app.use(errorHandler);
 
 app.listen(8080, () => {

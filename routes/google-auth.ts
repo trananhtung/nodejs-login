@@ -27,18 +27,6 @@ passport.use(
   ),
 );
 
-passport.serializeUser(function (user, done) {
-  process.nextTick(function () {
-    done(null, { id: user.id, name: user.name });
-  });
-});
-
-passport.deserializeUser(function (user: Express.User, done) {
-  process.nextTick(function () {
-    return done(null, user);
-  });
-});
-
 const googleRouter = express.Router();
 
 googleRouter.get('/*', (req, res, next) => {

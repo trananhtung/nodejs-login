@@ -6,22 +6,6 @@ import { v4 as uuid } from 'uuid';
 import { hashPassword, comparePassword } from '../helper/hash';
 import db from '../helper/database';
 
-declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace Express {
-    export interface User {
-      id: string;
-      name: string;
-    }
-  }
-}
-
-declare module 'express-session' {
-  export interface SessionData {
-    messages?: string[];
-  }
-}
-
 passport.use(
   new LocalStrategy((username, password, cb) => {
     db.get(
@@ -48,18 +32,6 @@ passport.use(
     );
   }),
 );
-
-passport.serializeUser((user: Express.User, cb) => {
-  process.nextTick(() => {
-    cb(null, { id: user.id, name: user.name });
-  });
-});
-
-passport.deserializeUser((user: Express.User, cb) => {
-  process.nextTick(() => {
-    return cb(null, user);
-  });
-});
 
 const localRouter = express.Router();
 
