@@ -42,7 +42,6 @@ facebookRouter.get(
   '/auth/redirect',
   passport.authenticate('facebook', { failureRedirect: '/login' }),
   (req, res, next) => {
-    console.log(req);
     const user = {
       id: req.user?.id ?? '',
       name: req.user?.name ?? '',
