@@ -27,18 +27,6 @@ passport.use(
   ),
 );
 
-passport.serializeUser(function (user, done) {
-  process.nextTick(function () {
-    done(null, { id: user.id, name: user.name });
-  });
-});
-
-passport.deserializeUser(function (user: Express.User, done) {
-  process.nextTick(function () {
-    return done(null, user);
-  });
-});
-
 const facebookRouter = express.Router();
 
 facebookRouter.get('/*', (req, res, next) => {
@@ -54,7 +42,6 @@ facebookRouter.get(
   '/auth/redirect',
   passport.authenticate('facebook', { failureRedirect: '/login' }),
   (req, res, next) => {
-    console.log(req);
     const user = {
       id: req.user?.id ?? '',
       name: req.user?.name ?? '',
