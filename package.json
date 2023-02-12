@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "@types/passport-facebook": "^2.1.11",
-    "nodemon": "^2.0.15",
+    "nodemon": "^2.0.20",
     "@types/bcryptjs": "^2.4.2",
     "@types/connect-ensure-login": "^0.1.7",
     "@types/connect-sqlite3": "^0.9.1",
